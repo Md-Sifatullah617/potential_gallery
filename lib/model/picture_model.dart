@@ -12,6 +12,13 @@ PictureModel pictureModelFromJsonSingle(String str) =>
 
 String pictureModelToJson(PictureModel data) => json.encode(data.toJson());
 
+List<PictureModel> pictureModelListFromJson(String str) =>
+    List<PictureModel>.from(
+        json.decode(str).map((x) => PictureModel.fromJson(x)));
+
+String pictureModelListToJson(List<PictureModel> data) =>
+    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+
 class RpPictureModel {
   final int? totalResults;
   final int? page;

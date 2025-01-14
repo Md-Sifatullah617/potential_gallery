@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:potential_gallery/controller/gallery_controller.dart';
+import 'package:potential_gallery/utils/app_assets.dart';
 import 'package:shimmer/shimmer.dart';
 
 class DetailsPage extends StatelessWidget {
@@ -54,6 +55,38 @@ class DetailsPage extends StatelessWidget {
             title: Text('Average Color'),
             subtitle: Text(galleryController.selectedPicture.value!.avgColor!),
           )
+        ],
+      ),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 10.h,
+        children: [
+          FloatingActionButton(
+            onPressed: () {
+              galleryController.downloadPicture();
+            },
+            heroTag: 'download',
+            backgroundColor: Colors.white,
+            child: Image.asset(
+              AppAssets.download,
+              width: 20.w,
+              height: 20.h,
+              fit: BoxFit.cover,
+            ),
+          ),
+          FloatingActionButton(
+            onPressed: () {
+              galleryController.sharePicture();
+            },
+            heroTag: 'share',
+            backgroundColor: Colors.white,
+            child: Image.asset(
+              AppAssets.share,
+              width: 20.w,
+              height: 20.h,
+              fit: BoxFit.cover,
+            ),
+          ),
         ],
       ),
     );
