@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -6,18 +7,39 @@ import 'package:potential_gallery/utils/custom_widget/custom_notification.dart';
 
 class GalleryController extends GetxController {
   RxBool isLoading = false.obs;
+  RxBool isFetchingMore = false.obs;
   Rxn<List<PictureModel>> pictureList = Rxn<List<PictureModel>>();
   RxInt pageNo = 1.obs;
+  final ScrollController scrollController = ScrollController();
 
   @override
   void onInit() {
     super.onInit();
     getCuratedPhotos(1);
+    scrollController.addListener(() {
+      if (scrollController.position.pixels ==
+          scrollController.position.maxScrollExtent) {
+        if (!isFetchingMore.value) {
+          pageNo++;
+          getCuratedPhotos(pageNo.value, isLoadMore: true);
+        }
+      }
+    });
   }
 
-  Future<void> getCuratedPhotos(pageNo) async {
+  @override
+  void onClose() {
+    scrollController.dispose();
+    super.onClose();
+  }
+
+  Future<void> getCuratedPhotos(int pageNo, {bool isLoadMore = false}) async {
     try {
-      isLoading.value = true;
+      if (isLoadMore) {
+        isFetchingMore.value = true;
+      } else {
+        isLoading.value = true;
+      }
       var response = await http.get(
           Uri.parse(
               'https://api.pexels.com/v1/curated?per_page=20&page=$pageNo'),
@@ -27,17 +49,25 @@ class GalleryController extends GetxController {
       var resultCode = response.statusCode;
       if (resultCode == 200) {
         var data = pictureModelFromJson(response.body);
-        pictureList.value = data.photos;
+        if (isLoadMore) {
+          pictureList.value!.addAll(data.photos!);
+        } else {
+          pictureList.value = data.photos;
+        }
       } else {
         toastMessage(
-          msg: "Picture Loading Failed ! Try Again.",
+          msg: "Picture Loading Failed! Try Again.",
           isError: true,
         );
       }
     } catch (e) {
-      printError(info: "Error in getCuratedPhotos : $e");
+      printError(info: "Error in getCuratedPhotos: $e");
     } finally {
-      isLoading.value = false;
+      if (isLoadMore) {
+        isFetchingMore.value = false;
+      } else {
+        isLoading.value = false;
+      }
     }
   }
 }

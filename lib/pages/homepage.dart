@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -12,9 +11,6 @@ class Homepage extends StatelessWidget {
   Homepage({super.key});
 
   final GalleryController galleryController = Get.find<GalleryController>();
-  Homepage({super.key});
-
-  final GalleryController galleryController = Get.find<GalleryController>();
 
   @override
   Widget build(BuildContext context) {
@@ -24,10 +20,14 @@ class Homepage extends StatelessWidget {
       ),
       body: Obx(() {
         bool isLoading = galleryController.isLoading.value;
+        bool isFetchingMore = galleryController.isFetchingMore.value;
         var pictureList = galleryController.pictureList.value ?? [];
-        if (isLoading) {
+
+        if (isLoading && pictureList.isEmpty) {
           return MasonryGridView.count(
-            padding: EdgeInsets.all(16.w),
+            padding: EdgeInsets.symmetric(
+              horizontal: 10.w,
+            ),
             crossAxisCount: 2,
             mainAxisSpacing: 4,
             crossAxisSpacing: 4,
@@ -39,11 +39,14 @@ class Homepage extends StatelessWidget {
                 child: Card(
                   elevation: 2,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                   child: Container(
                     height: 200.h,
-                    color: Colors.white,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10.r),
+                    ),
                   ),
                 ),
               );
@@ -55,7 +58,6 @@ class Homepage extends StatelessWidget {
           return Center(
               child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 10.h,
             children: [
               Image.asset(
                 AppAssets.noData,
@@ -63,6 +65,7 @@ class Homepage extends StatelessWidget {
                 height: 200.h,
                 fit: BoxFit.cover,
               ),
+              SizedBox(height: 10.h),
               Text(
                 'No Data Found',
                 style: TextStyle(
@@ -75,28 +78,55 @@ class Homepage extends StatelessWidget {
         }
 
         return MasonryGridView.count(
+          controller: galleryController.scrollController,
+          padding: EdgeInsets.symmetric(
+            horizontal: 10.w,
+          ),
           crossAxisCount: 2,
           mainAxisSpacing: 4,
           crossAxisSpacing: 4,
-          itemCount: pictureList.length + (isLoading ? 4 : 0),
+          itemCount: pictureList.length + (isFetchingMore ? 4 : 0),
           itemBuilder: (context, index) {
-            final picture = pictureList[index];
-            return Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: CachedNetworkImage(
-                  imageUrl: picture.src!.medium!,
-                  placeholder: (context, url) =>
-                      const Center(child: CircularProgressIndicator()),
-                  errorWidget: (context, url, error) => const Icon(Icons.error),
-                  fit: BoxFit.cover,
+            if (index >= pictureList.length) {
+              return Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child: Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  child: Container(
+                    height: 200.h,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-            );
+              );
+            } else {
+              final picture = pictureList[index];
+              return Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10.r),
+                  child: CachedNetworkImage(
+                    imageUrl: picture.src!.medium!,
+                    placeholder: (context, url) => Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(
+                        color: Colors.white,
+                      ),
+                    ),
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.error),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              );
+            }
           },
         );
       }),
