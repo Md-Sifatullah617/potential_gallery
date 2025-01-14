@@ -5,6 +5,8 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:potential_gallery/controller/gallery_controller.dart';
 import 'package:potential_gallery/utils/app_assets.dart';
+import 'package:potential_gallery/utils/custom_widget/custom_shimmer.dart';
+import 'package:potential_gallery/utils/routes.dart';
 import 'package:shimmer/shimmer.dart';
 
 class Homepage extends StatelessWidget {
@@ -33,23 +35,7 @@ class Homepage extends StatelessWidget {
             crossAxisSpacing: 4,
             itemCount: 4,
             itemBuilder: (context, index) {
-              return Shimmer.fromColors(
-                baseColor: Colors.grey[300]!,
-                highlightColor: Colors.grey[100]!,
-                child: Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.r),
-                  ),
-                  child: Container(
-                    height: 200.h,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10.r),
-                    ),
-                  ),
-                ),
-              );
+              return CustomShimmer();
             },
           );
         }
@@ -88,41 +74,34 @@ class Homepage extends StatelessWidget {
           itemCount: pictureList.length + (isFetchingMore ? 4 : 0),
           itemBuilder: (context, index) {
             if (index >= pictureList.length) {
-              return Shimmer.fromColors(
-                baseColor: Colors.grey[300]!,
-                highlightColor: Colors.grey[100]!,
+              return CustomShimmer();
+            } else {
+              final picture = pictureList[index];
+              return GestureDetector(
+                onTap: () {
+                  galleryController.selectedPicture.value = picture;
+                  Get.toNamed(Routes.detailsPage);
+                },
                 child: Card(
                   elevation: 2,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.r),
                   ),
-                  child: Container(
-                    height: 200.h,
-                    color: Colors.white,
-                  ),
-                ),
-              );
-            } else {
-              final picture = pictureList[index];
-              return Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10.r),
-                  child: CachedNetworkImage(
-                    imageUrl: picture.src!.medium!,
-                    placeholder: (context, url) => Shimmer.fromColors(
-                      baseColor: Colors.grey[300]!,
-                      highlightColor: Colors.grey[100]!,
-                      child: Container(
-                        color: Colors.white,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10.r),
+                    child: CachedNetworkImage(
+                      imageUrl: picture.src!.medium!,
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          color: Colors.white,
+                        ),
                       ),
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.error),
+                      fit: BoxFit.cover,
                     ),
-                    errorWidget: (context, url, error) =>
-                        const Icon(Icons.error),
-                    fit: BoxFit.cover,
                   ),
                 ),
               );

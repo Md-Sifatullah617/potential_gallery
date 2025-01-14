@@ -11,6 +11,7 @@ class GalleryController extends GetxController {
   Rxn<List<PictureModel>> pictureList = Rxn<List<PictureModel>>();
   RxInt pageNo = 1.obs;
   final ScrollController scrollController = ScrollController();
+  Rxn<PictureModel> selectedPicture = Rxn<PictureModel>();
 
   @override
   void onInit() {
