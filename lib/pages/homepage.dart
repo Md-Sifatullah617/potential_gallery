@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -8,6 +9,9 @@ import 'package:potential_gallery/utils/app_assets.dart';
 import 'package:shimmer/shimmer.dart';
 
 class Homepage extends StatelessWidget {
+  Homepage({super.key});
+
+  final GalleryController galleryController = Get.find<GalleryController>();
   Homepage({super.key});
 
   final GalleryController galleryController = Get.find<GalleryController>();
