@@ -21,9 +21,13 @@ Here’s a well-structured **README.md** file for your **Potential Gallery** app
 
 ## **Screenshots**
 
-![Screenshot 1](assets/screenshot/1.png)
-![Screenshot 2](assets/screenshot/2.png)
-![Screenshot 3](assets/screenshot/3.png)
+<p align="center">
+  <img src="assets/screenshot/1.png" alt="Screenshot 1" width="45%" />
+  <img src="assets/screenshot/2.png" alt="Screenshot 2" width="45%" />
+</p>
+<p align="center">
+  <img src="assets/screenshot/3.png" alt="Screenshot 3" width="45%" />
+</p>
 
 ---
 
