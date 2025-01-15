@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -58,7 +59,6 @@ class GalleryController extends GetxController {
         isLoading.value = true;
       }
 
-      // Check if data is available in cache
       if (!isLoadMore && cacheBox.containsKey('page_$pageNo')) {
         var cachedData = cacheBox.get('page_$pageNo');
         var data = pictureModelFromJson(cachedData);
@@ -81,7 +81,7 @@ class GalleryController extends GetxController {
         } else {
           pictureList.value = data.photos;
         }
-        // Cache the entire pictureList
+        cacheOriginalPictureUrl(pictureList.value!);
         cacheBox.put('pictureList', pictureModelListToJson(pictureList.value!));
       } else {
         toastMessage(
@@ -112,27 +112,24 @@ class GalleryController extends GetxController {
   Future<void> downloadPicture() async {
     if (selectedPicture.value != null) {
       final picture = selectedPicture.value!;
-      final url = picture.src?.original ?? '';
+      final url = picture.src?.original ?? 'no_name';
       final fileName = url.split('/').last;
 
       try {
-        // Request storage permissions
-        var status = await Permission.storage.request();
+        var status = await Permission.storage.status;
+        if (status.isDenied || status.isRestricted || status.isLimited) {
+          status = await Permission.storage.request();
+        }
+
         if (status.isGranted) {
-          // Get the directory to save the file
-          final directory = (await getExternalStorageDirectories(
-                  type: StorageDirectory.downloads))
-              ?.first;
+          final directory = await getExternalStorageDirectory();
           final filePath = '${directory?.path}/$fileName';
 
-          // Download the file
           Dio dio = Dio();
           await dio.download(url, filePath);
 
-          // Notify the user
-          toastMessage(msg: 'Picture downloaded successfully!');
-        } else if (status.isPermanentlyDenied || status.isDenied) {
-          // Open app settings
+          toastMessage(msg: 'Picture downloaded successfully to $filePath!');
+        } else if (status.isPermanentlyDenied) {
           Get.dialog(
             AlertDialog(
               title: const Text('Storage Permission Required'),
@@ -156,6 +153,12 @@ class GalleryController extends GetxController {
         toastMessage(msg: 'Error in downloadPicture: $e', isError: true);
         printError(info: "Error in downloadPicture: $e");
       }
+    }
+  }
+
+  cacheOriginalPictureUrl(List<PictureModel> pictureList) {
+    for (var picture in pictureList) {
+      CachedNetworkImageProvider(picture.src!.original!);
     }
   }
 }
