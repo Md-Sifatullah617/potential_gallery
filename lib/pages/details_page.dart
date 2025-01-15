@@ -54,7 +54,26 @@ class DetailsPage extends StatelessWidget {
           ListTile(
             title: Text('Average Color'),
             subtitle: Text(galleryController.selectedPicture.value!.avgColor!),
-          )
+          ),
+          //* pinch to zoom instruction
+          RichText(
+            text: TextSpan(
+              text: 'Pinch to zoom',
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 16.sp,
+              ),
+              children: [
+                WidgetSpan(
+                  child: Icon(
+                    Icons.pinch,
+                    size: 20.sp,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
       floatingActionButton: Column(
