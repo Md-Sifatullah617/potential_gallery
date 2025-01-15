@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -122,13 +124,20 @@ class GalleryController extends GetxController {
         }
 
         if (status.isGranted) {
-          final directory = await getExternalStorageDirectory();
-          final filePath = '${directory?.path}/$fileName';
+          Directory? directory;
+          if (Platform.isAndroid) {
+            directory = await getExternalStorageDirectory();
+          } else if (Platform.isIOS) {
+            directory = await getApplicationDocumentsDirectory();
+          }
 
-          Dio dio = Dio();
-          await dio.download(url, filePath);
-
-          toastMessage(msg: 'Picture downloaded successfully to $filePath!');
+          final filePath = '${directory!.path}/$fileName';
+          final response = await Dio().download(url, filePath);
+          if (response.statusCode == 200) {
+            toastMessage(msg: 'Picture downloaded successfully to $filePath!');
+          } else {
+            toastMessage(msg: 'Failed to download picture!', isError: true);
+          }
         } else if (status.isPermanentlyDenied) {
           Get.dialog(
             AlertDialog(
